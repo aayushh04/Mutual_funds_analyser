@@ -78,7 +78,7 @@ src/advisor.py       Client fit: risk caps, allocation, categories, fit score
 src/charts.py        Plotly figure builders (dark theme)
 src/ui.py            page CSS, research-note blocks (headline, rating, thesis), HTML tables, formatting
 src/content.py       tooltips, glossary, footer text
-tests/               214 pytest tests (known answers: CAGR, drawdown, XIRR, SIP; every client-fit profile)
+tests/               217 pytest tests (known answers: CAGR, drawdown, XIRR, SIP; every client-fit profile)
 .streamlit/          theme (colours, fonts)
 DESIGN.md            design system: colours, type, layout, rules
 ```
@@ -90,7 +90,7 @@ DESIGN.md            design system: colours, type, layout, rules
 ```powershell
 py -3.11 -m venv .venv
 .\.venv\Scripts\Activate.ps1
-pip install -r requirements.txt
+pip install -r requirements-dev.txt   # app packages + pytest (the deployed app uses requirements.txt)
 python -m pytest           # run the tests
 streamlit run app.py       # opens http://localhost:8501
 ```
