@@ -19,6 +19,14 @@ METRIC_TIPS: dict[str, str] = {
     "Alpha (%)": "Jensen's alpha: return beyond what the fund's beta 'should' have earned (CAPM). Positive = manager added value.",
 }
 
+# How the metrics table is grouped on screen (the CSV keeps the plain order).
+METRIC_GROUPS: list[tuple[str, list[str]]] = [
+    ("Return", ["Absolute return (%)", "CAGR (%)"]),
+    ("Risk-adjusted return", ["Sharpe ratio", "Sortino ratio"]),
+    ("Risk", ["Volatility (%)", "Max drawdown (%)", "Drawdown peak", "Drawdown trough", "Recovered on"]),
+    ("Versus benchmark", ["Beta", "Alpha (%)"]),
+]
+
 GLOSSARY: list[tuple[str, str, str]] = [
     ("NAV (Net Asset Value)",
      "The price of one unit of a mutual fund, published every business day: "

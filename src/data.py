@@ -19,8 +19,9 @@ from __future__ import annotations
 
 import re
 import time
+from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass
-from typing import Any
+from typing import Any, Optional
 
 import pandas as pd
 import requests
@@ -226,6 +227,50 @@ def find_codes_by_name(schemes: pd.DataFrame, names: list[str]) -> list[int]:
 
 
 # ---------------------------------------------------------------------------
+# Category universes (for the Top funds leaderboard)
+# ---------------------------------------------------------------------------
+
+# Category -> (name patterns that put a scheme in it, extra words that keep it out).
+# mfapi.in's scheme list has names only, so categories are matched by name.
+CATEGORIES: dict[str, tuple[list[str], list[str]]] = {
+    "Flexi cap": (["flexi cap", "flexicap"], []),
+    "Large cap": (["large cap", "largecap", "bluechip"], ["mid", "small"]),
+    "Large & mid cap": (["large & mid", "large and mid"], []),
+    "Mid cap": (["mid cap", "midcap"], ["large", "small"]),
+    "Small cap": (["small cap", "smallcap"], []),
+    "ELSS (tax saver)": (["elss", "tax saver", "taxsaver"], []),
+}
+# Passive and overseas schemes would distort an active-fund ranking.
+_NOT_ACTIVE_DOMESTIC = re.compile(r"index|etf|fof|fund of fund|nifty|sensex|bse|\bus\b|global|international|nasdaq",
+                                  re.IGNORECASE)
+
+
+def category_universe(schemes: pd.DataFrame, category: str) -> pd.DataFrame:
+    """Direct-plan, Growth-option, actively managed domestic schemes whose name places them in `category`."""
+    include, exclude = CATEGORIES[category]
+    names = schemes["scheme_name"]
+    lower = names.str.lower()
+    mask = lower.str.contains("|".join(map(re.escape, include))) & names.map(is_direct_growth)
+    mask &= ~names.str.contains(_NOT_ACTIVE_DOMESTIC)
+    for word in exclude:
+        mask &= ~lower.str.contains(word, regex=False)
+    return schemes[mask].reset_index(drop=True)
+
+
+def fetch_many(codes: list[int], workers: int = 8) -> dict[int, FundHistory]:
+    """Download several NAV histories in parallel; schemes that fail or have no data are skipped."""
+    def one(code: int) -> Optional[FundHistory]:
+        try:
+            return fetch_nav_history(code)
+        except DataError:
+            return None
+
+    with ThreadPoolExecutor(max_workers=workers) as pool:
+        results = list(pool.map(one, codes))
+    return {code: fund for code, fund in zip(codes, results) if fund is not None}
+
+
+# ---------------------------------------------------------------------------
 # Aligning several funds on the same dates
 # ---------------------------------------------------------------------------
 
@@ -261,6 +306,13 @@ def get_scheme_list() -> pd.DataFrame:
 def get_nav_history(scheme_code: int) -> FundHistory:
     """Cached for 6 hours: NAVs update once a day, in the evening."""
     return fetch_nav_history(scheme_code)
+
+
+@st.cache_data(ttl=6 * 3600, show_spinner="Downloading every fund in this category...")
+def get_category_funds(category: str) -> dict[int, FundHistory]:
+    """Cached for 6 hours: NAV history of every scheme in a category (about 40 to 55 funds)."""
+    codes = category_universe(get_scheme_list(), category)["scheme_code"].astype(int).tolist()
+    return fetch_many(codes)
 
 
 def search_schemes(query: str, direct_growth_only: bool = True, limit: int = 50) -> pd.DataFrame:

@@ -169,3 +169,27 @@ def test_align_ffill_carries_last_nav_forward():
     b = pd.Series([10.0, 30.0], index=pd.to_datetime(["2024-01-01", "2024-01-03"]))
     df = align_navs({"A": a, "B": b}, how="ffill")
     assert df.loc["2024-01-02", "B"] == 10.0
+
+
+# ---------- categories ----------
+
+def test_category_universe_keeps_active_direct_growth_only():
+    schemes = pd.DataFrame({"scheme_code": [1, 2, 3, 4, 5, 6], "scheme_name": [
+        "Axis Small Cap Fund - Direct Plan - Growth",
+        "Axis Small Cap Fund - Regular Plan - Growth",                   # regular plan
+        "Axis Nifty Smallcap 50 Index Fund - Direct Plan - Growth",      # index fund
+        "Quant Small Cap Fund - Direct Plan - IDCW",                     # dividend option
+        "SBI Small Cap Fund - Direct Plan - Growth",
+        "Mirae Asset Large & Midcap Fund - Direct Plan - Growth",
+    ]})
+    assert list(data.category_universe(schemes, "Small cap")["scheme_code"]) == [1, 5]
+    assert list(data.category_universe(schemes, "Mid cap")["scheme_code"]) == []   # 'large' keeps it out
+    assert list(data.category_universe(schemes, "Large & mid cap")["scheme_code"]) == [6]
+
+
+def test_category_universe_only_drops_us_as_a_whole_word():
+    schemes = pd.DataFrame({"scheme_code": [1, 2], "scheme_name": [
+        "HDFC Focused Flexi Cap Fund - Direct Plan - Growth",   # contains 'us' inside a word: keep
+        "Some US Flexi Cap Fund - Direct Plan - Growth",        # overseas: drop
+    ]})
+    assert list(data.category_universe(schemes, "Flexi cap")["scheme_code"]) == [1]

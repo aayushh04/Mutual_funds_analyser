@@ -384,3 +384,59 @@ def calendar_year_returns(nav: pd.Series) -> pd.Series:
     returns = year_end.pct_change().dropna()
     returns.index.name = "year"
     return returns
+
+
+# ---------------------------------------------------------------------------
+# Rating against the benchmark (research-note style, computed, never opinion)
+# ---------------------------------------------------------------------------
+
+def rating(fund_cagr: Optional[float], bench_cagr: Optional[float], alpha: Optional[float]) -> str:
+    """Rate a fund against its benchmark the way a research note rates a stock.
+
+    OUTPERFORM: higher CAGR than the benchmark AND positive Jensen's alpha
+        (it beat the index even after allowing for the market risk it took).
+    UNDERPERFORM: lower CAGR AND negative alpha.
+    IN-LINE: anything in between (the two signals disagree, or are both zero).
+    NOT RATED: not enough history (CAGR or alpha unavailable, e.g. under a year).
+    Inputs can be decimals or percentages, as long as they use the same unit.
+    """
+    if fund_cagr is None or bench_cagr is None or alpha is None:
+        return "NOT RATED"
+    if fund_cagr > bench_cagr and alpha > 0:
+        return "OUTPERFORM"
+    if fund_cagr < bench_cagr and alpha < 0:
+        return "UNDERPERFORM"
+    return "IN-LINE"
+
+
+# ---------------------------------------------------------------------------
+# Leaderboard: best trailing CAGR in a group of funds
+# ---------------------------------------------------------------------------
+
+def leaderboard(
+    navs: dict[str, pd.Series], years: int, end: pd.Timestamp, rf: float, top: int = 5
+) -> tuple[pd.DataFrame, int]:
+    """Rank funds by trailing CAGR over the last `years` years ending on `end`.
+
+    Only funds whose history covers the whole window compete (no annualising a
+    short history). Volatility, Sharpe and worst fall ride along so a high
+    return can be judged against the risk taken to earn it.
+    Returns (top rows, number of funds that qualified).
+    """
+    start = end - pd.DateOffset(years=years)
+    rows = []
+    for name, nav in navs.items():
+        window = slice_nav(nav, start, end)
+        if window is None:
+            continue
+        growth = cagr(window)
+        if growth is None:
+            continue
+        vol = annualised_volatility(window)
+        dd = max_drawdown(window)
+        rows.append({"Fund": name, "CAGR": growth, "Volatility": vol, "Sharpe": sharpe_ratio(growth, vol, rf),
+                     "Worst fall": dd.max_drawdown if dd else None})
+    if not rows:
+        return pd.DataFrame(columns=["Fund", "CAGR", "Volatility", "Sharpe", "Worst fall"]), 0
+    ranked = pd.DataFrame(rows).sort_values("CAGR", ascending=False, kind="stable").reset_index(drop=True)
+    return ranked.head(top), len(ranked)

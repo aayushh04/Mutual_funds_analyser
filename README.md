@@ -6,22 +6,35 @@ consistency and SIP outcomes, against a Nifty 50 benchmark. It uses free daily N
 
 **Live app:** _add your Streamlit Cloud link here after deploying_
 
-![Overview tab](docs/screenshots/overview.png)
+![Summary tab](docs/screenshots/summary.png)
 
-| Rolling returns | SIP backtest |
+| Top funds in a category | Phone |
 |---|---|
-| ![Rolling returns](docs/screenshots/rolling-returns.png) | ![SIP backtest](docs/screenshots/sip-backtest.png) |
+| ![Top funds](docs/screenshots/top-funds.png) | <img src="docs/screenshots/phone.png" alt="Phone view" width="260"> |
+
+| Consistency (rolling returns) | SIP backtest |
+|---|---|
+| ![Consistency](docs/screenshots/consistency.png) | ![SIP backtest](docs/screenshots/sip-backtest.png) |
 
 ## Features
-- **Search** any scheme and compare 1 to 4 funds. A toggle keeps only Direct plan + Growth option results.
+The app reads like a broker's research note ("Research Desk" design, dark theme; see [DESIGN.md](DESIGN.md)).
+- **Header bar:** pick 1 to 4 funds, **Add fund** searches all schemes (a toggle keeps only Direct plan + Growth option), choose the period, and set the benchmark and risk-free rate.
 - **Benchmark:** a Nifty 50 index fund's NAV, used as a proxy for the index. You can change it.
 - **Periods:** 1Y, 3Y, 5Y, 10Y, since inception, or custom dates. The risk-free rate can be edited (default 6.5%).
-- **Overview:** fund cards and a metrics table. The best value in each row is starred, every metric has an ⓘ tooltip, and the table downloads as CSV. Also a growth-of-Rs-10,000 chart.
+- **Headline:** one sentence naming the leading fund, e.g. "Flexi cap comparison: HDFC Flexi Cap Fund leads on return and risk-adjusted return".
+- **Summary:** a computed rating (OUTPERFORM when CAGR beats the benchmark and alpha is positive, UNDERPERFORM when both are worse, IN-LINE otherwise), key data, three plain-English reasons (return, risk, skill), a rating table and a relative-performance chart. Below it, the full metrics table: best values starred, a hover definition on every metric, CSV download.
+- **Spotlight:** highlight one fund across every chart and table.
+- **Top funds:** the top 5 funds of a category (flexi, large, large & mid, mid, small cap, ELSS) over 3, 5 and 10 years, ranked by CAGR with Sharpe and worst fall. Add any of them to the comparison in one click.
 - **Risk:** drawdown chart and rolling 1-year volatility.
-- **Rolling returns:** 1Y / 3Y / 5Y rolling CAGR, with min / median / max, % of periods positive and % that beat the benchmark.
-- **Calendar year:** each year's return vs the benchmark.
+- **Consistency:** 1Y / 3Y / 5Y rolling CAGR, with worst / median / best, % of windows positive and % that beat the benchmark.
+- **Calendar years:** each year's return vs the benchmark.
 - **SIP backtest:** monthly amount, start date, SIP day and yearly step-up. Shows invested, value, profit and XIRR.
-- **Learn:** a plain-English glossary.
+- **Glossary:** plain-English definitions with examples.
+- Works on a phone (390px wide).
+
+**Top funds caveats:** categories are matched by scheme name (the free data has no clean category field);
+index funds, ETFs, fund-of-funds and international funds are excluded; funds that closed or merged are not
+in the data, so the lists flatter each category (survivorship bias).
 
 ## Metrics explained
 | Metric | Formula | What it tells a client |
@@ -43,14 +56,20 @@ The benchmark is an index fund, so it trails the real index by its expense ratio
 ## Project structure
 ```
 app.py               Streamlit layout only
-src/data.py          API calls, cleaning, caching (scheme list 24h, NAVs 6h), search, date alignment
-src/metrics.py       returns, CAGR, volatility, Sharpe, Sortino, drawdown, beta, alpha, rolling, calendar
+src/data.py          API calls, cleaning, caching (scheme list 24h, NAVs 6h), search, categories, parallel fetch
+src/metrics.py       returns, CAGR, volatility, Sharpe, Sortino, drawdown, beta, alpha, rolling, calendar,
+                     rating, category leaderboard
 src/sip.py           SIP backtest + XIRR (bisection)
-src/charts.py        Plotly figure builders
-src/ui.py            HTML metrics table + formatting
+src/charts.py        Plotly figure builders (dark theme)
+src/ui.py            page CSS, research-note blocks (headline, rating, thesis), HTML tables, formatting
 src/content.py       tooltips, glossary, footer text
-tests/               50 pytest tests (known answers: CAGR, drawdown, XIRR, SIP)
+tests/               88 pytest tests (known answers: CAGR, drawdown, XIRR, SIP)
+.streamlit/          theme (colours, fonts)
+DESIGN.md            design system: colours, type, layout, rules
 ```
+
+**Data:** `https://api.mfapi.in/mf` (every scheme's code and name) and `https://api.mfapi.in/mf/{code}`
+(one fund's full daily NAV history). mfapi.in republishes AMFI's daily NAVs.
 
 ## Run locally
 ```powershell

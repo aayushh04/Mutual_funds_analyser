@@ -1,0 +1,152 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-11-25T00:00:00Z",
+  "title": "Design System: MF Analyser Research",
+  "extensions": {
+    "colorMeta": {
+      "ground": { "role": "neutral", "displayName": "Night Charcoal", "canonical": "oklch(18.5% 0.005 248)", "tonalRamp": ["#0a0b0c", "#242527", "#404244", "#5f6164", "#808385", "#a3a5a7", "#c7c9cb", "#edeff0"] },
+      "sheet": { "role": "neutral", "displayName": "Raised Sheet", "canonical": "oklch(22.9% 0.009 256)", "tonalRamp": ["#0a0b0d", "#232528", "#404246", "#5e6166", "#7f8387", "#a2a5a9", "#c7c9cd", "#eceff1"] },
+      "line": { "role": "neutral", "displayName": "Hairline", "canonical": "oklch(29.6% 0.008 256)", "tonalRamp": ["#0a0b0d", "#232528", "#404245", "#5e6166", "#7f8387", "#a2a5a9", "#c7c9cd", "#edeff1"] },
+      "rule-strong": { "role": "neutral", "displayName": "Strong Rule", "canonical": "oklch(36.2% 0.012 258)", "tonalRamp": ["#0a0b0e", "#232529", "#3f4247", "#5d6168", "#7e8389", "#a2a5ab", "#c6c9ce", "#eceff2"] },
+      "ink": { "role": "neutral", "displayName": "Ivory Ink", "canonical": "oklch(92.0% 0.014 85)", "tonalRamp": ["#0d0b08", "#272520", "#45423b", "#656159", "#868279", "#a8a59d", "#ccc9c3", "#f1eee9"] },
+      "ink-soft": { "role": "neutral", "displayName": "Soft Ivory", "canonical": "#d9d3c7", "tonalRamp": ["#0d0b08", "#272520", "#45423b", "#656159", "#868279", "#a8a59d", "#ccc9c3", "#f1eee9"] },
+      "muted": { "role": "neutral", "displayName": "Warm Muted", "canonical": "oklch(69.8% 0.017 83)", "tonalRamp": ["#0d0b07", "#28251f", "#45413a", "#666157", "#878278", "#a9a49c", "#cdc9c1", "#f1eee8"] },
+      "gold": { "role": "primary", "displayName": "House Gold", "canonical": "oklch(77.8% 0.111 86)", "tonalRamp": ["#150800", "#342100", "#563e00", "#7b5c00", "#9d7e2f", "#bda264", "#ddc794", "#ffedc5"] },
+      "gold-fill": { "role": "primary", "displayName": "Gold Leaf Fill", "canonical": "oklch(54.3% 0.096 84)", "tonalRamp": ["#140800", "#332200", "#553e04", "#795c1a", "#9c7e3f", "#bca16e", "#dcc69c", "#feedcb"] },
+      "gold-fill-hover": { "role": "primary", "displayName": "Gold Leaf Fill, hover", "canonical": "#9b7828", "tonalRamp": ["#140800", "#332200", "#553e04", "#795c1a", "#9c7e3f", "#bca16e", "#dcc69c", "#feedcb"] },
+      "fund-1": { "role": "secondary", "displayName": "Fund Blue", "canonical": "oklch(62.2% 0.161 255)", "tonalRamp": ["#00072b", "#002355", "#004083", "#1560b3", "#3c83d9", "#6da8f3", "#9cccff", "#cbf2ff"] },
+      "fund-2": { "role": "secondary", "displayName": "Fund Ember", "canonical": "oklch(62.2% 0.173 40)", "tonalRamp": ["#240000", "#4d0300", "#791c00", "#a73500", "#cf592c", "#eb8561", "#ffb192", "#ffdcc4"] },
+      "fund-3": { "role": "secondary", "displayName": "Fund Jade", "canonical": "oklch(62.1% 0.128 163)", "tonalRamp": ["#001204", "#003019", "#005232", "#00754d", "#26986e", "#65b993", "#97daba", "#c9fde3"] },
+      "fund-4": { "role": "secondary", "displayName": "Fund Ochre", "canonical": "oklch(67.0% 0.143 73)", "tonalRamp": ["#1b0400", "#3e1a00", "#643500", "#8d5200", "#b17400", "#cf9a50", "#edc086", "#ffe8bb"] },
+      "benchmark": { "role": "secondary", "displayName": "Benchmark Grey", "canonical": "oklch(66.1% 0.012 257)", "tonalRamp": ["#0a0b0e", "#232529", "#3f4247", "#5d6268", "#7e8389", "#a1a5ab", "#c6c9ce", "#eceff2"] },
+      "outperform": { "role": "tertiary", "displayName": "Outperform Green", "canonical": "oklch(79.2% 0.120 160)", "tint": "rgba(47,163,107,.13)", "tonalRamp": ["#001203", "#003017", "#005130", "#02744a", "#39976a", "#6eb790", "#9ed9b8", "#cdfbe1"] },
+      "in-line": { "role": "tertiary", "displayName": "In-line Grey", "canonical": "oklch(84.4% 0.008 261)", "tint": "rgba(142,147,154,.14)", "tonalRamp": ["#0a0b0d", "#242527", "#404245", "#5f6165", "#808287", "#a3a5a9", "#c7c9cc", "#edeef1"] },
+      "underperform": { "role": "tertiary", "displayName": "Underperform Rose", "canonical": "oklch(74.5% 0.124 13)", "tint": "rgba(208,80,94,.14)", "tonalRamp": ["#1e0005", "#43101a", "#6c2833", "#97414e", "#bd636e", "#db8b94", "#f8b4ba", "#ffdee3"] }
+    },
+    "typographyMeta": {
+      "display": { "displayName": "Display", "purpose": "The rating word in the rating stamp only. 2rem on phones." },
+      "headline": { "displayName": "Headline", "purpose": "The masthead sentence naming the leader, max 42ch. 1.45rem on phones." },
+      "title": { "displayName": "Title", "purpose": "Serif section heads (Why it leads, Relative performance, leaderboard titles)." },
+      "lead": { "displayName": "Lead", "purpose": "The one serif sentence naming each period's leader on Top funds, max 70ch." },
+      "body": { "displayName": "Body", "purpose": "Thesis paragraphs in soft ivory, max 62ch." },
+      "table": { "displayName": "Table", "purpose": "Every table and figure, tabular numerals; 0.86rem on phones." },
+      "label": { "displayName": "Label", "purpose": "Uppercase rating tags only; never a kicker." }
+    },
+    "shadows": [
+      { "name": "scroll-edge", "value": "radial-gradient(farthest-side at 0 50%, rgba(0,0,0,.6), rgba(0,0,0,0)) left center / 12px 100% no-repeat scroll", "purpose": "Edge shading on a wide table's scroll wrapper, shown only when content is cut off." },
+      { "name": "spotlight-underline", "value": "inset 0 -2px 0 #d6b25e", "purpose": "Gold underline on the spotlit fund's column head." },
+      { "name": "focus-ring", "value": "outline: 2px solid #d6b25e; outline-offset: 2px", "purpose": "Keyboard focus on every focusable element." }
+    ],
+    "motion": [
+      { "name": "stamp-settle", "value": "mfa-settle .55s cubic-bezier(.16,1,.3,1) both (opacity 0 -> 1, translateY 6px -> 0)", "purpose": "The one entrance: the rating stamp settles once. Off under reduced motion." },
+      { "name": "spotlight-fade", "value": "opacity .25s ease", "purpose": "Rows, cells and list items stepping back to 0.38 when another fund is spotlit." },
+      { "name": "row-hover", "value": "background-color .15s ease", "purpose": "Table row hover lift to #1b1e22." }
+    ],
+    "breakpoints": [
+      { "name": "phone", "value": "640px" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button (Add fund)",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "The one primary action, in the header; gold-leaf fill with a white label.",
+      "html": "<button class=\"ds-btn-primary\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 16 16\" aria-hidden=\"true\"><path d=\"M8 3v10M3 8h10\" stroke=\"currentColor\" stroke-width=\"1.6\" fill=\"none\"/></svg>Add fund</button>",
+      "css": ".ds-btn-primary { display: inline-flex; align-items: center; gap: 8px; background: #8a6a22; border: 1px solid #8a6a22; color: #fff; font: 400 1rem 'Source Sans 3', sans-serif; padding: 8px 16px; border-radius: 4px; cursor: pointer; transition: background .15s ease, border-color .15s ease; } .ds-btn-primary:hover { background: #9b7828; border-color: #9b7828; } .ds-btn-primary:focus-visible { outline: 2px solid #d6b25e; outline-offset: 2px; }"
+    },
+    {
+      "name": "Secondary Control",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "Period and Benchmark controls in the header: bordered, on the ground, ivory label.",
+      "html": "<button class=\"ds-btn-secondary\">5 years</button>",
+      "css": ".ds-btn-secondary { background: #111315; border: 1px solid #2a2d31; color: #e9e4da; font: 400 1rem 'Source Sans 3', sans-serif; padding: 8px 14px; border-radius: 4px; cursor: pointer; transition: border-color .15s ease; } .ds-btn-secondary:hover { border-color: #d6b25e; } .ds-btn-secondary:focus-visible { outline: 2px solid #d6b25e; outline-offset: 2px; }"
+    },
+    {
+      "name": "Fund Chip",
+      "kind": "chip",
+      "refersTo": "chip-fund",
+      "description": "A selected fund in the header; always neutral, full short name.",
+      "html": "<span class=\"ds-chip\">Parag Parikh Flexi Cap Fund <button aria-label=\"Remove\">&times;</button></span>",
+      "css": ".ds-chip { display: inline-flex; align-items: center; gap: 6px; background: #1a1d21; border: 1px solid #3a3e44; color: #e9e4da; font: 400 .95rem 'Source Sans 3', sans-serif; padding: 3px 8px; border-radius: 4px; } .ds-chip button { background: none; border: 0; color: #a39d92; cursor: pointer; font-size: 1rem; padding: 0; } .ds-chip button:hover { color: #e9e4da; } .ds-chip button:focus-visible { outline: 2px solid #d6b25e; outline-offset: 2px; }"
+    },
+    {
+      "name": "Rating Stamp",
+      "kind": "custom",
+      "refersTo": "rating-stamp",
+      "description": "Signature: the computed verdict as a word, tinted in its own hue, with the fund and benchmark below.",
+      "html": "<div class=\"ds-stamp\"><div class=\"ds-stamp-r\">OUTPERFORM</div><div class=\"ds-stamp-f\">HDFC Flexi Cap Fund</div><div class=\"ds-stamp-b\">against UTI Nifty 50 Index Fund (index fund NAV as proxy)</div></div>",
+      "css": ".ds-stamp { --rc: #6fd3a0; --rt: rgba(47,163,107,.13); border: 1px solid var(--rc); background: var(--rt); border-radius: 6px; padding: 18px 20px; max-width: 300px; animation: ds-settle .55s cubic-bezier(.16,1,.3,1) both; } @keyframes ds-settle { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } } .ds-stamp-r { font: 700 2.2rem/1 'Source Serif 4', Georgia, serif; color: var(--rc); margin: 2px 0 8px; letter-spacing: -.01em; } .ds-stamp-f { font: 600 1.2rem/1.25 'Source Serif 4', Georgia, serif; color: #e9e4da; } .ds-stamp-b { color: #a39d92; font: .88rem 'Source Sans 3', sans-serif; margin-top: 3px; } @media (prefers-reduced-motion: reduce) { .ds-stamp { animation: none; } }"
+    },
+    {
+      "name": "Rating Tag",
+      "kind": "chip",
+      "refersTo": "rating-tag",
+      "description": "Inline rating word on its tint; sits under the fund name in the rating summary.",
+      "html": "<span class=\"ds-tag ds-out\">OUTPERFORM</span> <span class=\"ds-tag ds-in\">IN-LINE</span> <span class=\"ds-tag ds-under\">UNDERPERFORM</span>",
+      "css": ".ds-tag { display: inline-block; padding: 2px 8px; border-radius: 3px; font: 700 .74rem 'Source Sans 3', sans-serif; letter-spacing: .05em; } .ds-out { color: #6fd3a0; background: rgba(47,163,107,.13); } .ds-in { color: #c9ccd1; background: rgba(142,147,154,.14); } .ds-under { color: #f08a96; background: rgba(208,80,94,.14); }"
+    },
+    {
+      "name": "Data Table",
+      "kind": "custom",
+      "refersTo": "data-table",
+      "description": "Hairline-ruled table, tabular figures, swatch before each fund, starred best value.",
+      "html": "<table class=\"ds-table\"><thead><tr><th>Fund</th><th>CAGR</th><th>Sharpe</th></tr></thead><tbody><tr><th scope=\"row\"><span class=\"ds-sw\" style=\"background:#d95926\"></span>HDFC Flexi Cap</th><td class=\"ds-best\">17.83%</td><td>0.88</td></tr><tr><th scope=\"row\"><span class=\"ds-sw\" style=\"background:#3987e5\"></span>Parag Parikh</th><td>11.84%</td><td>0.47</td></tr><tr><th scope=\"row\"><span class=\"ds-sw\" style=\"background:#8e939a\"></span>UTI Nifty 50 <span class=\"ds-na\">(benchmark)</span></th><td>8.70%</td><td>0.16</td></tr></tbody></table>",
+      "css": ".ds-table { border-collapse: collapse; width: 100%; font: .93rem 'Source Sans 3', sans-serif; font-variant-numeric: tabular-nums; color: #e9e4da; background: #111315; } .ds-table th, .ds-table td { padding: 9px 12px; border-bottom: 1px solid #2a2d31; text-align: right; white-space: nowrap; transition: background-color .15s ease; } .ds-table th:first-child { text-align: left; padding-left: 0; font-weight: 400; } .ds-table thead th { color: #a39d92; font-size: .82rem; font-weight: 600; border-bottom: 1px solid #3a3e44; } .ds-table tbody tr:hover td, .ds-table tbody tr:hover th { background: #1b1e22; } .ds-sw { display: inline-block; width: 9px; height: 9px; border-radius: 2px; margin-right: 7px; vertical-align: 1px; } .ds-na { color: #a39d92; } .ds-best { color: #6fd3a0; font-weight: 700; } .ds-best::before { content: ''; display: inline-block; width: 10px; height: 10px; margin-right: 5px; vertical-align: -1px; background: currentColor; -webkit-mask: url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M8 1.2l2 4.3 4.7.6-3.4 3.2.9 4.7L8 11.7 3.8 14l.9-4.7L1.3 6.1 6 5.5z'/%3E%3C/svg%3E\") center / contain no-repeat; mask: url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M8 1.2l2 4.3 4.7.6-3.4 3.2.9 4.7L8 11.7 3.8 14l.9-4.7L1.3 6.1 6 5.5z'/%3E%3C/svg%3E\") center / contain no-repeat; }"
+    },
+    {
+      "name": "Report Tabs",
+      "kind": "nav",
+      "refersTo": "nav-tabs",
+      "description": "Tabs as report sections; active label gold with a gold underline.",
+      "html": "<nav class=\"ds-tabs\" role=\"tablist\"><button role=\"tab\" aria-selected=\"true\">Summary</button><button role=\"tab\" aria-selected=\"false\">Top funds</button><button role=\"tab\" aria-selected=\"false\">Risk</button><button role=\"tab\" aria-selected=\"false\">Glossary</button></nav>",
+      "css": ".ds-tabs { display: flex; gap: 16px; border-bottom: 1px solid #2a2d31; background: #111315; } .ds-tabs button { background: none; border: 0; border-bottom: 2px solid transparent; color: #e9e4da; font: 600 .95rem 'Source Sans 3', sans-serif; padding: 8px 0; white-space: nowrap; cursor: pointer; } .ds-tabs button:hover { color: #d6b25e; } .ds-tabs button[aria-selected=\"true\"] { color: #d6b25e; border-bottom-color: #d6b25e; } .ds-tabs button:focus-visible { outline: 2px solid #d6b25e; outline-offset: 2px; }"
+    },
+    {
+      "name": "Spotlight Control",
+      "kind": "nav",
+      "refersTo": "spotlight",
+      "description": "Segmented control that spotlights one fund across every chart and table; active segment gold.",
+      "html": "<div class=\"ds-seg\" role=\"radiogroup\"><button aria-pressed=\"true\">All funds</button><button aria-pressed=\"false\">Parag Parikh</button><button aria-pressed=\"false\">HDFC</button></div>",
+      "css": ".ds-seg { display: inline-flex; border: 1px solid #2a2d31; border-radius: 4px; overflow: hidden; } .ds-seg button { background: #111315; border: 0; border-right: 1px solid #2a2d31; color: #e9e4da; font: 400 .92rem 'Source Sans 3', sans-serif; padding: 6px 14px; cursor: pointer; } .ds-seg button:last-child { border-right: 0; } .ds-seg button:hover { background: #1a1d21; } .ds-seg button[aria-pressed=\"true\"] { color: #d6b25e; box-shadow: inset 0 0 0 1px #8a6a22; background: rgba(138,106,34,.12); } .ds-seg button:focus-visible { outline: 2px solid #d6b25e; outline-offset: -2px; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Research Desk at Night",
+    "overview": "The app reads as a sell-side research note on a set of mutual funds, not as a fintech dashboard. A serif headline sentence names the leader, a rating stamp gives the computed verdict in words, three plain-English paragraphs argue it, and hairline-ruled tables carry the numbers. Everything sits on one warm charcoal ground; there are no KPI tiles, no card grid, no drop shadows.\n\nDensity is that of a printed note: tabular figures, hairline rules between rows, captions in muted ivory under every chart and table explaining what the numbers mean. Colour does two jobs only. A single house gold marks the brand, the active choice and the one primary action. A fixed four-hue categorical set identifies funds in charts and tables, with the benchmark always grey and always named.\n\nDark mode is binding. Motion is a single settle of the rating stamp; everything else is short opacity and background transitions on state change.",
+    "keyCharacteristics": [
+      "Warm charcoal ground with one slightly raised sheet tone; ivory ink, never pure white body text.",
+      "Serif (Source Serif 4) for the headline, rating, section heads and the leader sentence; Source Sans 3 with tabular figures for tables and controls.",
+      "Hairline rules instead of cards; the only bordered containers are the rating stamp and the relative-performance chart panel.",
+      "One house gold, rationed.",
+      "Every signal carried in words as well as colour: rating words, named line ends, a starred best value, \"(benchmark)\" labels."
+    ],
+    "rules": [
+      { "name": "The One Gold Rule", "body": "Gold appears only on the brand, the active state (tab, Spotlight segment, chart range button, spotlit column) and the primary action, Add fund. Selected-fund chips are neutral sheet with an ivory label; gold never decorates content.", "section": "colors" },
+      { "name": "The Word Plus Colour Rule", "body": "No rating, series or best value is identified by colour alone. Ratings are written as words; chart line ends are labelled \"name value\"; the best value carries a star and a screen-reader \"Best:\"; the benchmark is named.", "section": "colors" },
+      { "name": "The Fixed Seat Rule", "body": "A fund's colour follows its position in the selection, in the order fund-1, fund-2, fund-3, fund-4, and never changes between charts or tabs.", "section": "colors" },
+      { "name": "The Serif Speaks Rule", "body": "Serif carries sentences and verdicts (headline, rating, section heads, leader sentence); every number is set in the sans with tabular figures.", "section": "typography" },
+      { "name": "The No Kicker Rule", "body": "No small uppercase label sits above a heading. Uppercase letter-spaced type is reserved for rating tags, which are data.", "section": "typography" },
+      { "name": "The Ruled Page Rule", "body": "Separate with a 1px hairline, never with a card or a shadow. A bordered container is earned only by the rating stamp and the single chart panel on Summary.", "section": "elevation" }
+    ],
+    "dos": [
+      "**Do** keep gold to the brand, the active tab, segment or range button, the spotlit column and the Add fund action.",
+      "**Do** write every rating as a word (OUTPERFORM, IN-LINE, UNDERPERFORM, NOT RATED, BENCHMARK) next to its colour.",
+      "**Do** name every chart line end \"name value\", and label the benchmark \"(benchmark)\" everywhere.",
+      "**Do** assign fund colours by selection order from fund-1 to fund-4 and keep them fixed across every chart and table.",
+      "**Do** set every number in Source Sans 3 with tabular figures, right-aligned in tables, Indian grouping for rupees.",
+      "**Do** separate rows and sections with 1px hairlines on the charcoal ground.",
+      "**Do** check every view at 390px: header controls two per row, no sideways scroll on the rating summary, wide tables scrolling inside their own wrapper.",
+      "**Do** honour reduced motion: no stamp settle, no table transitions."
+    ],
+    "donts": [
+      "**Don't** add a light theme; dark mode is binding.",
+      "**Don't** tint the selected-fund chips gold or any fund colour; they stay neutral sheet.",
+      "**Don't** put a small uppercase kicker or eyebrow label above a heading.",
+      "**Don't** build KPI tiles, card grids or drop shadows; the rating stamp and the one chart panel are the only bordered containers.",
+      "**Don't** let colour alone carry a rating, a series or a best value.",
+      "**Don't** set running text in pure white (white is kept for the bold reason words in the thesis and labels on the gold fill), or any text below the muted tone's 6.9:1 contrast."
+    ]
+  }
+}

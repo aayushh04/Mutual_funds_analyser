@@ -154,3 +154,40 @@ def test_metrics_table_marks_short_history_as_none_and_picks_best():
     best = m.best_columns(table, ["A", "B", "C"])
     assert best["CAGR (%)"] == ["A"]
     assert best["Volatility (%)"] == ["A"]
+
+
+# ---------- rating ----------
+
+@pytest.mark.parametrize("cagr, bench, alpha, expected", [
+    (17.83, 8.70, 9.41, "OUTPERFORM"),
+    (6.0, 8.70, -1.5, "UNDERPERFORM"),
+    (9.0, 8.70, -0.2, "IN-LINE"),      # beat the index, but not after risk
+    (8.0, 8.70, 0.5, "IN-LINE"),       # lower return, but positive alpha
+    (None, 8.70, None, "NOT RATED"),
+])
+def test_rating(cagr, bench, alpha, expected):
+    assert m.rating(cagr, bench, alpha) == expected
+
+
+# ---------- leaderboard ----------
+
+def test_leaderboard_ranks_by_cagr_and_skips_short_histories():
+    idx = pd.date_range("2016-01-01", "2026-01-01", freq="D")
+    years = np.arange(len(idx)) / 365
+    navs = {
+        "Slow": pd.Series(100 * 1.08 ** years, index=idx),
+        "Fast": pd.Series(100 * 1.15 ** years, index=idx),
+        "Mid": pd.Series(100 * 1.11 ** years, index=idx),
+        "Young": pd.Series(100 * 1.30 ** years[-400:], index=idx[-400:]),  # only ~1 year old
+    }
+    top, n = m.leaderboard(navs, 5, idx[-1], 0.065, top=2)
+    assert n == 3                                   # Young is excluded from the 5-year list
+    assert list(top["Fund"]) == ["Fast", "Mid"]
+    assert top.loc[0, "CAGR"] == pytest.approx(0.15, abs=1e-3)
+    top1, n1 = m.leaderboard(navs, 1, idx[-1], 0.065, top=1)
+    assert n1 == 4 and top1.loc[0, "Fund"] == "Young"
+
+
+def test_leaderboard_empty():
+    top, n = m.leaderboard({}, 3, pd.Timestamp("2026-01-01"), 0.065)
+    assert n == 0 and top.empty
