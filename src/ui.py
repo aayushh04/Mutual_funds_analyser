@@ -55,10 +55,28 @@ html {{ scrollbar-color: #33373c {GROUND}; }}
 /* Rating summary: the tag sits under the fund name so Fund, CAGR, Alpha, Sharpe fit the centre column. */
 .mfa-rin {{ display: block; margin-top: 4px; }}
 .mfa-rs .mfa-table th[scope="row"], .mfa-rs .mfa-table thead th {{ min-width: 0; }}
-.mfa-lead {{ font: 600 1.22rem/1.4 {SERIF}; color: {INK}; margin: 6px 0 2px; max-width: 70ch; text-wrap: pretty; }}
+.mfa-profile {{ border: 1px solid #3a3e44; background: {SHEET}; border-radius: 6px; padding: 18px 20px;
+  animation: mfa-settle .55s cubic-bezier(.16,1,.3,1) both; }}
+.mfa-profile .r {{ font: 700 clamp(1.6rem, 2.1vw, 2.2rem)/1 {SERIF}; color: {INK}; letter-spacing: -.01em; margin: 2px 0 8px; }}
+.mfa-profile .f {{ font: 600 1.1rem/1.3 {SERIF}; color: {INK}; }}
+.mfa-profile .b {{ color: {MUTED}; font-size: .86rem; margin-top: 4px; }}
+.mfa-alloc {{ display: flex; gap: 2px; height: 10px; margin: 16px 0 10px; border-radius: 3px; overflow: hidden; }}
+.mfa-alloc .g, .mfa-alloc-key i.g {{ background: #d9d3c7; }}
+.mfa-alloc .s, .mfa-alloc-key i.s {{ background: #5a5f66; }}
+.mfa-alloc-key {{ display: grid; gap: 4px; font-size: .9rem; color: {MUTED}; font-variant-numeric: tabular-nums; }}
+.mfa-alloc-key b {{ color: {INK}; font-weight: 600; }}
+.mfa-alloc-key i {{ display: inline-block; width: 9px; height: 9px; border-radius: 2px; margin-right: 7px; }}
+.mfa-notes {{ margin: 14px 0 0 !important; padding-left: 18px !important; color: {MUTED}; font-size: .86rem; line-height: 1.5; }}
+.mfa-notes li {{ margin-bottom: 6px; }}
+.mfa-w {{ font: 400 .9rem {SERIF}; color: {MUTED}; margin-left: 6px; }}
+.mfa-sleeve {{ margin-bottom: 22px; }}
+.mfa-money .mfa-table th[scope="row"] {{ position: static; padding-left: 0; width: 50%; }}
+.mfa-cat {{ display: block; color: {MUTED}; font-size: .82rem; margin-top: 2px; }}
+.mfa-table tr.mfa-total th, .mfa-table tr.mfa-total td {{ border-bottom: none; border-top: 1px solid #3a3e44; }}
+.mfa-lead {{ font: 600 1.22rem/1.4 {SERIF}; color: {INK}; margin: 6px 0 2px; max-width: 70ch; text-wrap-style: pretty; }}
 [data-testid="stCaptionContainer"], [data-testid="stCaptionContainer"] p {{ color: {MUTED} !important; opacity: 1 !important; }}
 [data-testid="stCaptionContainer"] {{ max-width: 80ch; }}
-[data-testid="stMarkdownContainer"] p, .mfa-thesis p, .mfa-head {{ text-wrap: pretty; }}
+[data-testid="stMarkdownContainer"] p, .mfa-thesis p, .mfa-head {{ text-wrap-style: pretty; }}
 input::placeholder, textarea::placeholder {{ color: #8f897f !important; opacity: 1; }}
 button[role="tab"][aria-selected="true"] p,
 [data-testid="stBaseButton-segmented_controlActive"] p {{ color: {GOLD} !important; }}
@@ -134,7 +152,7 @@ button[role="tab"] p {{ font-weight: 600; }}
 .mfa-lb .mfa-table td.mfa-rank, .mfa-lb .mfa-table thead th:first-child {{ width: 26px; padding-right: 4px; }}
 
 @media (prefers-reduced-motion: reduce) {{
-  .mfa-rating {{ animation: none; }}
+  .mfa-rating, .mfa-profile {{ animation: none; }}
   .mfa-table th, .mfa-table td, .mfa-funds li {{ transition: none; }}
 }}
 [data-testid="stTabs"] button[role="tab"] p {{ white-space: nowrap; }}
@@ -542,6 +560,143 @@ def volatility_peak_note(vols: dict[str, pd.Series], short_names: dict[str, str]
         return ""
     return (f"Highest reading in this window: {best_val * 100:.1f}% for "
             f"{short_names.get(best_name, best_name)} on {best_date:%d %b %Y}.")
+
+
+# ---------------------------------------------------------------------------
+# Client fit
+# ---------------------------------------------------------------------------
+
+GOAL_PHRASE = {  # "For a moderate investor <phrase> over 10 years"
+    "Wealth creation": "building wealth", "Retirement": "saving for retirement",
+    "Child's education": "saving for a child's education", "Buying a home": "saving to buy a home",
+    "Tax saving (80C)": "saving tax under section 80C",
+}
+
+
+def _category_words(category: str) -> str:
+    """'Flexi cap' -> 'flexi cap'; 'ELSS (tax saver)' -> 'ELSS'."""
+    label = category.split(" (")[0]
+    return label if label.isupper() else label.lower()
+
+
+def _share(x: float) -> str:
+    return f"{x * 100:.0f}%"
+
+
+def plan_sentence(plan, picks: list[tuple[str, str]]) -> str:
+    """Serif line: who the plan is for, the split, and the top pick per category.
+
+    `plan` is an advisor.Plan; `picks` is [(category, fund name)] in plan order.
+    """
+    span = f"{plan.years} year{'s' if plan.years != 1 else ''}"
+    who = (f"For an emergency fund kept for {span}" if plan.goal == "Emergency fund" else
+           f"For a {plan.risk.lower()} investor {GOAL_PHRASE.get(plan.goal, plan.goal.lower())} over {span}")
+    if plan.growth <= 0:
+        split = "100% in stability (debt) funds"
+    elif plan.growth >= 1:
+        split = "100% in growth funds"
+    else:
+        split = f"{_share(plan.growth)} in growth funds, {_share(1 - plan.growth)} in stability (debt) funds"
+    text = f"{html.escape(who)}: {split}."
+    named = [f"{html.escape(short_name(f, 60))} ({html.escape(_category_words(c))})" for c, f in picks if f]
+    if named:
+        text += (" Top pick: " if len(named) == 1 else " Top picks: ") + (
+            named[0] if len(named) == 1 else ", ".join(named[:-1]) + " and " + named[-1]) + "."
+    return f'<p class="mfa-lead">{text}</p>'
+
+
+def profile_box_html(plan) -> str:
+    """The client profile and allocation, in the place the rating box takes on the Summary."""
+    stated = (f'<div class="b">Stated appetite: {html.escape(plan.stated_risk.lower())}; '
+              f'adjusted for the horizon and goal</div>' if plan.stated_risk != plan.risk else "")
+    bar = (f'<div class="mfa-alloc" role="img" aria-label="{_share(plan.growth)} growth, {_share(1 - plan.growth)} stability">'
+           f'<span class="g" style="flex:{plan.growth:.3f}"></span><span class="s" style="flex:{1 - plan.growth:.3f}"></span></div>')
+    legend = (f'<div class="mfa-alloc-key"><span><i class="g"></i>Growth (equity &amp; hybrid) <b>{_share(plan.growth)}</b></span>'
+              f'<span><i class="s"></i>Stability (debt) <b>{_share(1 - plan.growth)}</b></span></div>')
+    return (f'<div class="mfa-profile"><div class="r">{html.escape(plan.risk.upper())}</div>'
+            f'<div class="f">{html.escape(plan.goal)} · {plan.years} year{"s" if plan.years != 1 else ""}</div>'
+            f'{stated}{bar}{legend}</div>')
+
+
+def _rupees(v: float) -> str:
+    return inr(v) if v else "—"
+
+
+def money_plan_html(rows: list[tuple[str, str, float, int, int]], monthly: float, lumpsum: float,
+                    notes: list[str]) -> str:
+    """Where the money goes: one row per (category, fund, share, monthly SIP, lump sum), with totals.
+
+    Columns for an amount the client didn't enter are left out.
+    """
+    parts = []
+    if monthly > 0:
+        parts.append(f"{inr(monthly)} a month")
+    if lumpsum > 0:
+        parts.append(f"{inr(lumpsum)} now")
+    head = ['<th scope="col">Fund</th>', '<th scope="col">Share</th>']
+    if monthly > 0:
+        head.append('<th scope="col">Monthly SIP</th>')
+    if lumpsum > 0:
+        head.append('<th scope="col">Lump sum</th>')
+    body = []
+    for category, fund, share, sip, lump in rows:
+        name = html.escape(short_name(fund, 46)) if fund else '<span class="mfa-na">No fund qualified</span>'
+        cells = [f'<th scope="row">{name}<span class="mfa-cat">{html.escape(category)}</span></th>',
+                 f"<td>{_share(share)}</td>"]
+        if monthly > 0:
+            cells.append(f"<td>{_rupees(sip)}</td>")
+        if lumpsum > 0:
+            cells.append(f"<td>{_rupees(lump)}</td>")
+        body.append("<tr>" + "".join(cells) + "</tr>")
+    total = ['<th scope="row"><b>Total</b></th>', "<td><b>100%</b></td>"]
+    if monthly > 0:
+        total.append(f"<td><b>{inr(sum(r[3] for r in rows))}</b></td>")
+    if lumpsum > 0:
+        total.append(f"<td><b>{inr(sum(r[4] for r in rows))}</b></td>")
+    body.append('<tr class="mfa-total">' + "".join(total) + "</tr>")
+    note_html = ('<ul class="mfa-notes">' + "".join(f"<li>{html.escape(n)}</li>" for n in notes) + "</ul>"
+                 if notes else "")
+    return (f'<div class="mfa-lb mfa-sleeve mfa-money"><h2 class="mfa-h">Where the money goes</h2>'
+            f'<p class="mfa-sub">{" and ".join(parts)}, split by the allocation into the top pick of each category. '
+            f'Amounts are rounded to Rs 100.</p>'
+            f'{_table("Amount to invest in each fund", head, body)}{note_html}</div>')
+
+
+def plan_notes_html(plan, weights: tuple[float, float, float]) -> str:
+    """Why the plan looks the way it does: caps applied and how funds are scored."""
+    w_c, w_s, w_f = (f"{w * 100:.0f}%" for w in weights)
+    items = list(plan.notes) + [
+        f"Fit score (0 to 100) ranks each fund within its category on CAGR ({w_c}), Sharpe ({w_s}) and worst "
+        f"fall ({w_f}). The weights follow the {plan.risk.lower()} profile."]
+    return '<ul class="mfa-notes">' + "".join(f"<li>{html.escape(n)}</li>" for n in items) + "</ul>"
+
+
+def sleeve_html(category: str, weight: float, why: str, ranked: pd.DataFrame, qualified: int, lookback: int,
+                in_comparison: set[str], top: int = 3) -> str:
+    """One category of the plan: its share, why it's there, and the best-fitting funds."""
+    head = f'<h2 class="mfa-h">{html.escape(category)} <span class="mfa-w">{_share(weight)} of the portfolio</span></h2>'
+    if ranked.empty:
+        return (f'<div class="mfa-lb mfa-sleeve">{head}<p class="mfa-sub">{html.escape(why)}</p>'
+                f'<p class="mfa-sub">No fund in this category has {lookback} years of NAV history to judge.</p></div>')
+    cells = ['<th scope="col">#</th>', '<th scope="col">Fund</th>', '<th scope="col">Fit</th>',
+             '<th scope="col">CAGR</th>', '<th scope="col">Sharpe</th>', '<th scope="col">Worst fall</th>']
+    body = []
+    for i, row in ranked.head(top).iterrows():
+        name = row["Fund"]
+        tags = ""
+        if i == 0:
+            tags += ' <span class="mfa-tag" style="--rc:#e9e4da;--rt:rgba(233,228,218,.12)">TOP PICK</span>'
+        if name in in_comparison:
+            tags += ' <span class="mfa-tag" style="--rc:#c9ccd1;--rt:rgba(142,147,154,.14)">IN COMPARISON</span>'
+        body.append(
+            f'<tr><td class="mfa-rank">{i + 1}</td>'
+            f'<th scope="row">{html.escape(short_name(name, 46))}{tags}</th>'
+            f'<td class="{"mfa-best" if i == 0 else ""}">{row["Fit"]:.0f}</td>'
+            f'<td>{pct(row["CAGR"])}</td><td>{num(row["Sharpe"])}</td><td>{pct(row["Worst fall"], 1)}</td></tr>')
+    table = _table(f"{category}: best-fitting funds", cells, body)
+    return (f'<div class="mfa-lb mfa-sleeve">{head}<p class="mfa-sub">{html.escape(why)}</p>'
+            f'<p class="mfa-sub">Top {min(top, len(ranked))} of {qualified} funds, judged on the last {lookback} years '
+            f'of NAVs.</p>{table}</div>')
 
 
 def leaders_sentence(category: str, leaders: dict[int, str]) -> str:

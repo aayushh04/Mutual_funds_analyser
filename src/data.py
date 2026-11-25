@@ -239,9 +239,17 @@ CATEGORIES: dict[str, tuple[list[str], list[str]]] = {
     "Mid cap": (["mid cap", "midcap"], ["large", "small"]),
     "Small cap": (["small cap", "smallcap"], []),
     "ELSS (tax saver)": (["elss", "tax saver", "taxsaver"], []),
+    # Hybrid and debt (used by Client fit for shorter horizons and the stable part of a portfolio).
+    "Balanced advantage": (["balanced advantage", "dynamic asset allocation"], []),
+    "Corporate bond": (["corporate bond"], []),
+    "Short duration": (["short duration", "short term"], ["ultra", "gilt", "government"]),
+    "Liquid": (["liquid"], ["gilt"]),
 }
-# Passive and overseas schemes would distort an active-fund ranking.
-_NOT_ACTIVE_DOMESTIC = re.compile(r"index|etf|fof|fund of fund|nifty|sensex|bse|\bus\b|global|international|nasdaq",
+EQUITY_CATEGORIES = ["Flexi cap", "Large cap", "Large & mid cap", "Mid cap", "Small cap", "ELSS (tax saver)"]
+# Passive and overseas schemes would distort an active-fund ranking. Unclaimed-money and segregated
+# (bad-debt) portfolios, and closed-ended schemes (fixed term, interval, "series"), can't be bought today.
+_NOT_ACTIVE_DOMESTIC = re.compile(r"index|etf|fof|fund of fund|nifty|sensex|bse|\bus\b|global|international|nasdaq"
+                                  r"|unclaimed|segregated|fixed term|fixed maturity|\bftp\b|\bfmp\b|interval|series",
                                   re.IGNORECASE)
 
 
@@ -255,6 +263,19 @@ def category_universe(schemes: pd.DataFrame, category: str) -> pd.DataFrame:
     for word in exclude:
         mask &= ~lower.str.contains(word, regex=False)
     return schemes[mask].reset_index(drop=True)
+
+
+def live_navs(cat_funds: dict[int, FundHistory], max_gap_days: int = 10
+              ) -> tuple[dict[str, pd.Series], pd.Timestamp, dict[str, int]]:
+    """Keep funds still publishing NAVs (closed or merged funds stop), cut to a common latest date.
+
+    Returns ({scheme name: NAV series}, latest date, {scheme name: scheme code}).
+    """
+    latest = max(f.latest_date for f in cat_funds.values())
+    live = {f.scheme_name: f.nav.loc[:latest] for f in cat_funds.values()
+            if f.latest_date >= latest - pd.Timedelta(days=max_gap_days)}
+    codes = {f.scheme_name: code for code, f in cat_funds.items()}
+    return live, latest, codes
 
 
 def fetch_many(codes: list[int], workers: int = 8) -> dict[int, FundHistory]:

@@ -113,6 +113,19 @@ def test_brief_names_drop_shared_words():
     assert brief_names(["HDFC Flexi Cap Fund"]) == {"HDFC Flexi Cap Fund": "HDFC Flexi Cap"}
 
 
+def test_plan_sentence_reads_naturally():
+    from src.advisor import build_plan
+    from src.ui import plan_sentence
+    plan = build_plan("Conservative", "Tax saving (80C)", 5)
+    text = plan_sentence(plan, [("ELSS (tax saver)", "HDFC ELSS Tax Saver - Direct Plan - Growth"),
+                                ("Corporate bond", "DSP Corporate Bond Fund - Direct Plan - Growth")])
+    assert ("For a conservative investor saving tax under section 80C over 5 years: 25% in growth funds, "
+            "75% in stability (debt) funds.") in text
+    assert "HDFC ELSS Tax Saver (ELSS) and DSP Corporate Bond Fund (corporate bond)." in text
+    assert "For an emergency fund kept for 1 year: 100% in stability" in plan_sentence(
+        build_plan("Moderate", "Emergency fund", 1), [])
+
+
 def test_leaders_sentence():
     text = leaders_sentence("Flexi cap", {3: "ITI Flexi Cap Fund", 5: "HDFC Flexi Cap Fund", 10: "Quant Flexi Cap Fund"})
     assert ("Quant Flexi Cap Fund leads flexi cap over 10 years, HDFC Flexi Cap Fund over 5 "

@@ -24,7 +24,21 @@ The app reads like a broker's research note ("Research Desk" design, dark theme;
 - **Headline:** one sentence naming the leading fund, e.g. "Flexi cap comparison: HDFC Flexi Cap Fund leads on return and risk-adjusted return".
 - **Summary:** a computed rating (OUTPERFORM when CAGR beats the benchmark and alpha is positive, UNDERPERFORM when both are worse, IN-LINE otherwise), key data, three plain-English reasons (return, risk, skill), a rating table and a relative-performance chart. Below it, the full metrics table: best values starred, a hover definition on every metric, CSV download.
 - **Spotlight:** highlight one fund across every chart and table.
-- **Top funds:** the top 5 funds of a category (flexi, large, large & mid, mid, small cap, ELSS) over 3, 5 and 10 years, ranked by CAGR with Sharpe and worst fall. Add any of them to the comparison in one click.
+- **Client fit:** for a client meeting. Enter the client's risk appetite, goal and time horizon; the app follows an
+  advisor's steps:
+  1. Caps the risk where the horizon is short or the goal has a fixed date.
+  2. Sets a growth / stability (equity / debt) split.
+  3. Maps each part to fund categories (e.g. flexi, mid and small cap for long horizons; balanced advantage or
+     short-duration debt for short ones; ELSS for tax saving; liquid funds for an emergency fund).
+  4. Shortlists the best funds in each category by a fit score: percentile ranks on CAGR, Sharpe and worst fall,
+     weighted for the client's risk level.
+  5. Splits the client's monthly SIP and/or lump sum across the top pick of each category, in rupees (rounded to
+     Rs 100, always adding up to the total). It flags amounts under common scheme minimums and suggests an STP
+     for a large lump sum going into equity.
+
+  Every rule is a small table in `src/advisor.py`, so each recommendation can be explained.
+- **Top funds:** the top 5 funds of a category (equity: flexi, large, large & mid, mid, small cap, ELSS; hybrid and
+  debt: balanced advantage, corporate bond, short duration, liquid) over 3, 5 and 10 years, ranked by CAGR with Sharpe and worst fall. Add any of them to the comparison in one click.
 - **Risk:** drawdown chart and rolling 1-year volatility.
 - **Consistency:** 1Y / 3Y / 5Y rolling CAGR, with worst / median / best, % of windows positive and % that beat the benchmark.
 - **Calendar years:** each year's return vs the benchmark.
@@ -60,10 +74,11 @@ src/data.py          API calls, cleaning, caching (scheme list 24h, NAVs 6h), se
 src/metrics.py       returns, CAGR, volatility, Sharpe, Sortino, drawdown, beta, alpha, rolling, calendar,
                      rating, category leaderboard
 src/sip.py           SIP backtest + XIRR (bisection)
+src/advisor.py       Client fit: risk caps, allocation, categories, fit score
 src/charts.py        Plotly figure builders (dark theme)
 src/ui.py            page CSS, research-note blocks (headline, rating, thesis), HTML tables, formatting
 src/content.py       tooltips, glossary, footer text
-tests/               88 pytest tests (known answers: CAGR, drawdown, XIRR, SIP)
+tests/               214 pytest tests (known answers: CAGR, drawdown, XIRR, SIP; every client-fit profile)
 .streamlit/          theme (colours, fonts)
 DESIGN.md            design system: colours, type, layout, rules
 ```

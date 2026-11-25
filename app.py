@@ -11,6 +11,16 @@ import streamlit as st
 
 from src import charts
 from src import metrics as m
+from src.advisor import (
+    FIT_WEIGHTS,
+    GOALS,
+    RISK_LEVELS,
+    build_plan,
+    investment_notes,
+    lookback_years,
+    score_funds,
+    split_amount,
+)
 from src.content import FOOTER, GLOSSARY, METRIC_GROUPS, METRIC_TIPS
 from src.data import (
     CATEGORIES,
@@ -22,6 +32,7 @@ from src.data import (
     get_category_funds,
     get_nav_history,
     get_scheme_list,
+    live_navs,
 )
 from src.sip import run_sip
 from src.ui import (
@@ -38,11 +49,16 @@ from src.ui import (
     leaderboard_html,
     leaders_sentence,
     metrics_table_html,
+    money_plan_html,
     num,
     pct,
+    plan_notes_html,
+    plan_sentence,
+    profile_box_html,
     rating_box_html,
     rating_summary_html,
     short_name,
+    sleeve_html,
     thesis_html,
     volatility_peak_note,
     year_table_html,
@@ -224,8 +240,8 @@ if len(fund_names) > 1:
                                 help="Highlight one fund across every chart and table.")
     focus = None if pick in (None, "all") else pick
 
-tab_sum, tab_top, tab_risk, tab_roll, tab_cal, tab_sip, tab_learn = st.tabs(
-    ["Summary", "Top funds", "Risk", "Consistency", "Calendar years", "SIP backtest", "Glossary"]
+tab_sum, tab_fit, tab_top, tab_risk, tab_roll, tab_cal, tab_sip, tab_learn = st.tabs(
+    ["Summary", "Client fit", "Top funds", "Risk", "Consistency", "Calendar years", "SIP backtest", "Glossary"]
 )
 
 # ---------------------------------------------------------------------------
@@ -283,6 +299,80 @@ with tab_sum:
         colors, bench_name, shorts, focus))
 
 # ---------------------------------------------------------------------------
+# Client fit: risk appetite + goal + horizon -> allocation -> categories -> best-fitting funds
+# ---------------------------------------------------------------------------
+with tab_fit:
+    st.caption("For a client meeting: enter the client's risk appetite, goal and time horizon. The app builds an "
+               "allocation and shortlists the best-fitting funds from past NAV data.")
+    with st.form("client_fit", border=False):
+        c1, c2, c3 = st.columns([1.4, 1.2, 1.6], gap="medium")
+        fit_risk = c1.segmented_control(
+            "Risk appetite", RISK_LEVELS, default="Moderate",
+            help="How big a fall the client can live with: Conservative (avoid losses), Moderate (some swings), "
+                 "Aggressive (big swings for more growth).")
+        fit_goal = c2.selectbox("Goal", list(GOALS))
+        fit_years = c3.slider("Time horizon (years)", 1, 30, 10)
+        a1, a2, _ = st.columns([1.4, 1.2, 1.6], gap="medium")
+        fit_monthly = a1.number_input("Monthly SIP (Rs)", min_value=0, max_value=1_00_00_000, value=10_000, step=1_000,
+                                      help="Amount the client will invest every month. Use 0 for none.")
+        fit_lump = a2.number_input("Lump sum (Rs)", min_value=0, max_value=100_00_00_000, value=0, step=10_000,
+                                   help="One-time amount to invest now. Use 0 for none.")
+        if st.form_submit_button("Find the best funds", type="primary", icon=":material/search:"):
+            st.session_state.fit_profile = (fit_risk or "Moderate", fit_goal, int(fit_years),
+                                            float(fit_monthly), float(fit_lump))
+
+    if "fit_profile" not in st.session_state:
+        st.info("Enter the client's profile and press **Find the best funds**.")
+    else:
+        fit_risk_v, fit_goal_v, fit_years_v, *amounts = st.session_state.fit_profile
+        monthly, lumpsum = (amounts + [0.0, 0.0])[:2]  # older sessions stored no amounts
+        plan = build_plan(fit_risk_v, fit_goal_v, fit_years_v)
+        results, fit_codes = [], {}
+        for sleeve in plan.sleeves:
+            lookback = lookback_years(sleeve, plan.years)
+            ranked, qualified = pd.DataFrame(), 0
+            cat_funds = get_category_funds(sleeve.category)
+            if cat_funds:
+                live, latest, codes = live_navs(cat_funds)
+                fit_codes.update(codes)
+                ranked, qualified = score_funds(live, lookback, latest, rf, plan.risk)
+                if qualified == 0 and lookback > 3:  # young category: judge on 3 years instead
+                    lookback = 3
+                    ranked, qualified = score_funds(live, lookback, latest, rf, plan.risk)
+            results.append((sleeve, ranked, qualified, lookback))
+        picks = [(s.category, r["Fund"].iloc[0] if not r.empty else "") for s, r, _, _ in results]
+
+        st.html(plan_sentence(plan, picks))
+        left, right = st.columns([3.2, 9.6], gap="large")
+        left.html(profile_box_html(plan))
+        left.html(plan_notes_html(plan, FIT_WEIGHTS[plan.risk]))
+        with right:
+            if monthly > 0 or lumpsum > 0:
+                weights = [s.weight for s in plan.sleeves]
+                sip_parts, lump_parts = split_amount(monthly, weights), split_amount(lumpsum, weights)
+                money_rows = [(s.category, fund, s.weight, sp, lp)
+                              for s, (_, fund), sp, lp in zip(plan.sleeves, picks, sip_parts, lump_parts)]
+                st.html(money_plan_html(money_rows, monthly, lumpsum,
+                                        investment_notes(plan, sip_parts, lump_parts, lumpsum)))
+            else:
+                st.caption("Enter a monthly SIP or a lump sum to see how much goes into each fund.")
+            for sleeve, ranked, qualified, lookback in results:
+                st.html(sleeve_html(sleeve.category, sleeve.weight, sleeve.why, ranked, qualified, lookback, set(funds)))
+
+        candidates = [f for _, f in picks if f and fit_codes.get(f) not in st.session_state.funds]
+        if candidates:
+            add_pick, add_btn, _ = st.columns([2.2, 1, 2.8], vertical_alignment="bottom")
+            chosen = add_pick.selectbox("Open a top pick in the full analysis", candidates,
+                                        format_func=lambda n: short_name(n, 70), key="fit_add_pick")
+            add_btn.button("Add to comparison", icon=":material/add:", on_click=add_fund, key="fit_add_btn",
+                           args=(int(fit_codes[chosen]),), disabled=len(st.session_state.funds) >= MAX_FUNDS,
+                           width="stretch")
+        st.caption("A shortlist from simple rules and past returns, to discuss with the client, not a recommendation "
+                   "on its own. Before advising, check each scheme's expense ratio, fund size, fund manager, exit load "
+                   "and riskometer, and the client's whole financial situation. In India only SEBI-registered "
+                   "investment advisers may charge for personalised advice.")
+
+# ---------------------------------------------------------------------------
 # Top funds: best 5 in a category over 3, 5 and 10 years
 # ---------------------------------------------------------------------------
 with tab_top:
@@ -294,11 +384,7 @@ with tab_top:
     if not cat_funds:
         st.warning("Could not load the funds in this category right now. Please try again in a minute.")
     else:
-        latest = max(f.latest_date for f in cat_funds.values())
-        # Funds that stopped publishing NAVs (closed or merged) are left out.
-        live = {f.scheme_name: f.nav.loc[:latest] for f in cat_funds.values()
-                if f.latest_date >= latest - pd.Timedelta(days=10)}
-        code_of = {f.scheme_name: code for code, f in cat_funds.items()}
+        live, latest, code_of = live_navs(cat_funds)  # funds that stopped publishing NAVs are left out
         st.caption(f"{len(live)} actively managed {cat.lower()} funds (Direct plan, Growth option), ranked by trailing "
                    f"CAGR to {latest:%d %b %Y}. Sharpe uses the {rf_pct:.2f}% risk-free rate from Benchmark settings.")
         boards = {yrs: m.leaderboard(live, yrs, latest, rf) for yrs in (3, 5, 10)}
