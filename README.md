@@ -4,7 +4,7 @@ Compare Indian mutual funds the way a distributor would when advising a client: 
 consistency and SIP outcomes, against a Nifty 50 benchmark. It uses free daily NAV data from
 [mfapi.in](https://www.mfapi.in/) (38,000+ schemes, no API key).
 
-**Live app:** _add your Streamlit Cloud link here after deploying_
+**Live app:** [mf-analyser-research.streamlit.app](https://mf-analyser-research.streamlit.app/)
 
 ![Summary tab](docs/screenshots/summary.png)
 
